@@ -1,10 +1,16 @@
 {
   "name": "flat-tree-helper",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "",
-  "main": "index.js",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "clean": "rm -rf dist/*",
+    "build": "npm run clean && tsc -p tsconfig.build.json --outDir dist",
+    "prepublish": "npm run test && npm run build"
   },
   "repository": {
     "type": "git",
@@ -15,5 +21,17 @@
   "bugs": {
     "url": "https://github.com/concefly/flat-tree-helper/issues"
   },
-  "homepage": "https://github.com/concefly/flat-tree-helper#readme"
+  "homepage": "https://github.com/concefly/flat-tree-helper#readme",
+  "devDependencies": {
+    "@types/jest": "^24.0.14",
+    "@types/lodash.groupby": "^4.6.6",
+    "@types/lodash.keyby": "^4.6.6",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "lodash.groupby": "^4.6.0",
+    "lodash.keyby": "^4.6.0"
+  }
 }
