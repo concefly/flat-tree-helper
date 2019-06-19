@@ -1,4 +1,4 @@
-import { walk, remove, move } from '../src';
+import { walk, remove, move, findAllParent } from '../src';
 
 describe('walk', () => {
   it('normal', () => {
@@ -23,9 +23,9 @@ describe('walk', () => {
       },
     ];
 
-    walk('0', t => {
+    walk(list, '0', t => {
       tapMap[t.id] = index++;
-    })(list);
+    });
 
     expect(tapMap).toStrictEqual({
       '0': 0,
@@ -38,19 +38,22 @@ describe('walk', () => {
 
 describe('remove', () => {
   it('normal', () => {
-    const result = remove('1')([
-      {
-        id: '0',
-      },
-      {
-        id: '1',
-        parentId: '0',
-      },
-      {
-        id: '2',
-        parentId: '1',
-      },
-    ]);
+    const result = remove(
+      [
+        {
+          id: '0',
+        },
+        {
+          id: '1',
+          parentId: '0',
+        },
+        {
+          id: '2',
+          parentId: '1',
+        },
+      ],
+      '1'
+    );
 
     expect(result).toStrictEqual([
       {
@@ -62,19 +65,23 @@ describe('remove', () => {
 
 describe('move', () => {
   it('normal', () => {
-    const result = move('1-1-1', '1')([
-      {
-        id: '1',
-      },
-      {
-        id: '1-1',
-        parentId: '1',
-      },
-      {
-        id: '1-1-1',
-        parentId: '1-1',
-      },
-    ]);
+    const result = move(
+      [
+        {
+          id: '1',
+        },
+        {
+          id: '1-1',
+          parentId: '1',
+        },
+        {
+          id: '1-1-1',
+          parentId: '1-1',
+        },
+      ],
+      '1-1-1',
+      '1'
+    );
 
     expect(result).toStrictEqual([
       {
@@ -92,23 +99,28 @@ describe('move', () => {
   });
 
   it('before', () => {
-    const result = move('1-1-1', '1', { before: '1-2' })([
-      {
-        id: '1',
-      },
-      {
-        id: '1-1',
-        parentId: '1',
-      },
-      {
-        id: '1-2',
-        parentId: '1',
-      },
-      {
-        id: '1-1-1',
-        parentId: '1-1',
-      },
-    ]);
+    const result = move(
+      [
+        {
+          id: '1',
+        },
+        {
+          id: '1-1',
+          parentId: '1',
+        },
+        {
+          id: '1-2',
+          parentId: '1',
+        },
+        {
+          id: '1-1-1',
+          parentId: '1-1',
+        },
+      ],
+      '1-1-1',
+      '1',
+      { before: '1-2' }
+    );
 
     expect(result).toStrictEqual([
       {
@@ -130,23 +142,28 @@ describe('move', () => {
   });
 
   it('after', () => {
-    const result = move('1-1-1', '1', { after: '1-1' })([
-      {
-        id: '1',
-      },
-      {
-        id: '1-1',
-        parentId: '1',
-      },
-      {
-        id: '1-2',
-        parentId: '1',
-      },
-      {
-        id: '1-1-1',
-        parentId: '1-1',
-      },
-    ]);
+    const result = move(
+      [
+        {
+          id: '1',
+        },
+        {
+          id: '1-1',
+          parentId: '1',
+        },
+        {
+          id: '1-2',
+          parentId: '1',
+        },
+        {
+          id: '1-1-1',
+          parentId: '1-1',
+        },
+      ],
+      '1-1-1',
+      '1',
+      { after: '1-1' }
+    );
 
     expect(result).toStrictEqual([
       {
@@ -162,6 +179,37 @@ describe('move', () => {
       },
       {
         id: '1-2',
+        parentId: '1',
+      },
+    ]);
+  });
+});
+
+describe('findAllParent', () => {
+  it('normal', () => {
+    const result = findAllParent(
+      [
+        {
+          id: '1',
+        },
+        {
+          id: '1-1',
+          parentId: '1',
+        },
+        {
+          id: '1-1-1',
+          parentId: '1-1',
+        },
+      ],
+      '1-1-1'
+    );
+
+    expect(result).toStrictEqual([
+      {
+        id: '1',
+      },
+      {
+        id: '1-1',
         parentId: '1',
       },
     ]);

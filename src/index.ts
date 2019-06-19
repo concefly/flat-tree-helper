@@ -7,7 +7,7 @@ export interface ITreeNode {
 }
 
 /** 深度优先遍历所有后代 */
-export const walk = <T extends ITreeNode>(startId: string, tap: (t: T) => void) => (list: T[]) => {
+export const walk = <T extends ITreeNode>(list: T[], startId: string, tap: (t: T) => void) => {
   // list 转 map，优化查找速度
   const idMap = keyBy(list, 'id');
   const childrenMap = groupBy(list, 'parentId');
@@ -28,11 +28,11 @@ export const walk = <T extends ITreeNode>(startId: string, tap: (t: T) => void) 
 };
 
 /** 递归删除 */
-export const remove = <T extends ITreeNode>(startId: string) => (list: T[]): T[] => {
+export const remove = <T extends ITreeNode>(list: T[], startId: string) => {
   const removeSym = Symbol('remove flag');
 
   // 给后代打删除标记
-  walk(startId, t => (t[removeSym] = true))(list);
+  walk(list, startId, t => (t[removeSym] = true));
 
   // 只保留没有删除标记的节点
   return list.filter(t => !t[removeSym]);
@@ -40,13 +40,14 @@ export const remove = <T extends ITreeNode>(startId: string) => (list: T[]): T[]
 
 /** 移动 */
 export const move = <T extends ITreeNode>(
+  list: T[],
   id: string,
   parentId?: string,
   opt: {
     before?: string;
     after?: string;
   } = {}
-) => (list: T[]): T[] => {
+) => {
   if (opt.before && opt.after) throw new Error('before 和 after 不可同时设置');
 
   const newList = [...list];
@@ -80,4 +81,20 @@ export const move = <T extends ITreeNode>(
   }
 
   return newList;
+};
+
+/** 查找所有 parent */
+export const findAllParent = <T extends ITreeNode>(list: T[], startId: string): T[] => {
+  let current = list.find(t => t.id === startId);
+  const parentList: T[] = [];
+
+  while (current) {
+    parentList.unshift(current);
+    current = list.find(t => t.id === current.parentId);
+  }
+
+  // 移除自己
+  parentList.pop();
+
+  return parentList;
 };
