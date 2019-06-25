@@ -7,7 +7,11 @@ export interface ITreeNode {
 }
 
 /** 深度优先遍历所有后代 */
-export const walk = <T extends ITreeNode>(list: T[], startId: string, tap: (t: T) => void) => {
+export const walk = <T extends ITreeNode>(
+  list: T[],
+  startId: string,
+  tap: (t: T, opt: { done: () => void }) => void
+) => {
   // list 转 map，优化查找速度
   const idMap = keyBy(list, 'id');
   const childrenMap = groupBy(list, 'parentId');
@@ -15,8 +19,17 @@ export const walk = <T extends ITreeNode>(list: T[], startId: string, tap: (t: T
   if (!idMap[startId]) return;
 
   const _walk = (_id: string) => {
+    let shouldStop = false;
+
+    const done = () => {
+      shouldStop = true;
+    };
+
     // tap 自己
-    idMap[_id] && tap(idMap[_id]);
+    idMap[_id] && tap(idMap[_id], { done });
+
+    // 如果用户调用了 done, 则可以停止 walk
+    if (shouldStop) return;
 
     // 递归 tap 儿子
     childrenMap[_id] && childrenMap[_id].forEach(child => _walk(child.id));

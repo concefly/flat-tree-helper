@@ -34,6 +34,31 @@ describe('walk', () => {
       '2': 3,
     });
   });
+
+  it('done 参数', () => {
+    let index = 0;
+    const tapMap = {};
+
+    const list = [
+      {
+        id: '0',
+      },
+      {
+        id: '1',
+        parentId: '0',
+      },
+    ];
+
+    walk(list, '0', (t, { done }) => {
+      tapMap[t.id] = index++;
+
+      if (index === 1) done();
+    });
+
+    expect(tapMap).toStrictEqual({
+      '0': 0,
+    });
+  });
 });
 
 describe('remove', () => {
