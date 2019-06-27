@@ -1,4 +1,4 @@
-import { walk, remove, move, findAllParent } from '../src';
+import { walk, remove, move, findAllParent, findAllRoot } from '../src';
 
 describe('walk', () => {
   it('normal', () => {
@@ -236,6 +236,28 @@ describe('findAllParent', () => {
       {
         id: '1-1',
         parentId: '1',
+      },
+    ]);
+  });
+});
+
+describe('findAllRoot', () => {
+  it('normal', () => {
+    const result = findAllRoot([
+      {
+        id: '1',
+      },
+      {
+        id: '2',
+      },
+    ]);
+
+    expect(result).toStrictEqual([
+      {
+        id: '1',
+      },
+      {
+        id: '2',
       },
     ]);
   });

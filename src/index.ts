@@ -111,3 +111,8 @@ export const findAllParent = <T extends ITreeNode>(list: T[], startId: string): 
 
   return parentList;
 };
+
+/** 查找所有根节点 */
+export const findAllRoot = <T extends ITreeNode>(list: T[]): T[] => {
+  return list.filter(t => !t.parentId);
+};
