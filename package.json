@@ -1,15 +1,18 @@
 {
   "name": "flat-tree-helper",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "",
   "files": [
     "dist"
   ],
-  "main": "dist/index.js",
+  "main": "dist/lib/index.js",
+  "module": "dist/es/index.js",
   "scripts": {
     "test": "jest",
     "clean": "rm -rf dist/*",
-    "build": "npm run clean && tsc -p tsconfig.build.json --outDir dist",
+    "build:es": "tsc -p tsconfig.build.es.json --outDir dist/es",
+    "build:lib": "tsc -p tsconfig.build.json --outDir dist/lib",
+    "build": "npm run clean && npm run build:lib && npm run build:es",
     "prepublish": "npm run test && npm run build"
   },
   "repository": {
