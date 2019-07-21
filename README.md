@@ -12,6 +12,8 @@
   </a>
 </p>
 
+[![Build Status](https://travis-ci.org/concefly/flat-tree-helper.svg?branch=master)](https://travis-ci.org/concefly/flat-tree-helper)
+
 > 扁平 tree helper
 
 ### 🏠 [Homepage](https://github.com/concefly/flat-tree-helper#readme)
