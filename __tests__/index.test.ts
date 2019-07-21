@@ -1,4 +1,13 @@
-import { walk, remove, move, findAllParent, findAllRoot } from '../src';
+import {
+  walk,
+  remove,
+  move,
+  findAllParent,
+  findAllRoot,
+  isLeaf,
+  getAllTraceList,
+  reduceTraceList,
+} from '../src';
 
 describe('walk', () => {
   it('normal', () => {
@@ -57,6 +66,28 @@ describe('walk', () => {
 
     expect(tapMap).toStrictEqual({
       '0': 0,
+    });
+  });
+
+  it('trace', () => {
+    const traceMap = {};
+
+    const t0 = { id: '0' };
+    const t0_0 = { id: '0_0', parentId: t0.id };
+    const t0_1 = { id: '0_1', parentId: t0.id };
+    const t0_0_0 = { id: '0_0_0', parentId: t0_0.id };
+
+    const list = [t0, t0_0, t0_1, t0_0_0];
+
+    walk(list, t0.id, (t, { trace }) => {
+      traceMap[t.id] = trace;
+    });
+
+    expect(traceMap).toStrictEqual({
+      [t0.id]: [t0],
+      [t0_0.id]: [t0, t0_0],
+      [t0_1.id]: [t0, t0_1],
+      [t0_0_0.id]: [t0, t0_0, t0_0_0],
     });
   });
 });
@@ -260,5 +291,54 @@ describe('findAllRoot', () => {
         id: '2',
       },
     ]);
+  });
+});
+
+describe('isLeaf', () => {
+  it('normal', () => {
+    const result = isLeaf(
+      [
+        {
+          id: '1',
+        },
+        {
+          id: '2',
+          parentId: '1',
+        },
+      ],
+      '2'
+    );
+
+    expect(result).toBeTruthy();
+  });
+});
+
+describe('flatten', () => {
+  it('normal', () => {
+    const t0 = { id: '0' };
+    const t0_0 = { id: '0_0', parentId: t0.id };
+    const t0_1 = { id: '0_1', parentId: t0.id };
+    const t0_0_0 = { id: '0_0_0', parentId: t0_0.id };
+
+    const list = [t0, t0_0, t0_1, t0_0_0];
+    const result = getAllTraceList(list, t0.id);
+
+    expect(result).toStrictEqual([[t0, t0_0, t0_0_0], [t0, t0_1]]);
+  });
+});
+
+describe('reduceTraceList', () => {
+  it('normal', () => {
+    const t0 = { id: '0' };
+    const t0_0 = { id: '0_0', parentId: t0.id };
+    const t0_1 = { id: '0_1', parentId: t0.id };
+    const t0_0_0 = { id: '0_0_0', parentId: t0_0.id };
+
+    const traceList = [[t0, t0_0, t0_0_0], [t0, t0_1]];
+    const result = reduceTraceList(traceList);
+
+    expect(result.sort((a, b) => a.id.localeCompare(b.id))).toStrictEqual(
+      [t0, t0_0, t0_1, t0_0_0].sort((a, b) => a.id.localeCompare(b.id))
+    );
   });
 });

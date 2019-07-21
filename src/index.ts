@@ -1,5 +1,6 @@
 import keyBy from 'lodash.keyby';
 import groupBy from 'lodash.groupby';
+import unionBy from 'lodash.unionby';
 
 export interface ITreeNode {
   id: string;
@@ -10,7 +11,14 @@ export interface ITreeNode {
 export const walk = <T extends ITreeNode>(
   list: T[],
   startId: string,
-  tap: (t: T, opt: { done: () => void }) => void
+  tap: (
+    t: T,
+    opt: {
+      /** walk 踪迹 */
+      trace: T[];
+      done: () => void;
+    }
+  ) => void
 ) => {
   // list 转 map，优化查找速度
   const idMap = keyBy(list, 'id');
@@ -18,21 +26,25 @@ export const walk = <T extends ITreeNode>(
 
   if (!idMap[startId]) return;
 
-  const _walk = (_id: string) => {
-    let shouldStop = false;
+  const _walk = (_id: string, _lastTrace: T[] = []) => {
+    const currentTreeNode = idMap[_id];
+    if (!currentTreeNode) return;
 
+    let shouldStop = false;
     const done = () => {
       shouldStop = true;
     };
 
+    const trace = [..._lastTrace, currentTreeNode];
+
     // tap 自己
-    idMap[_id] && tap(idMap[_id], { done });
+    tap(currentTreeNode, { done, trace });
 
     // 如果用户调用了 done, 则可以停止 walk
     if (shouldStop) return;
 
     // 递归 tap 儿子
-    childrenMap[_id] && childrenMap[_id].forEach(child => _walk(child.id));
+    childrenMap[_id] && childrenMap[_id].forEach(child => _walk(child.id, trace));
   };
 
   _walk(startId);
@@ -115,4 +127,26 @@ export const findAllParent = <T extends ITreeNode>(list: T[], startId: string): 
 /** 查找所有根节点 */
 export const findAllRoot = <T extends ITreeNode>(list: T[]): T[] => {
   return list.filter(t => !t.parentId);
+};
+
+/** 判断是否叶子节点 */
+export const isLeaf = <T extends ITreeNode>(list: T[], id: string): boolean => {
+  return list.every(t => t.parentId !== id);
+};
+
+/** 返回所有踪迹 */
+export const getAllTraceList = <T extends ITreeNode>(list: T[], startId: string): T[][] => {
+  const re: T[][] = [];
+
+  walk(list, startId, (t, { trace }) => {
+    // 遇到叶子节点，就可以记录下这条 trace 了
+    if (isLeaf(list, t.id)) re.push(trace);
+  });
+
+  return re;
+};
+
+/** 把 trace 合并成 tree */
+export const reduceTraceList = <T extends ITreeNode>(traceList: T[][]): T[] => {
+  return unionBy.apply(null, [...traceList, (t: T) => t.id]);
 };
