@@ -16,6 +16,7 @@ export const walk = <T extends ITreeNode>(
     opt: {
       /** walk 踪迹 */
       trace: T[];
+      isLeaf: boolean;
       done: () => void;
     }
   ) => void
@@ -36,15 +37,17 @@ export const walk = <T extends ITreeNode>(
     };
 
     const trace = [..._lastTrace, currentTreeNode];
+    const childrenNodes = childrenMap[_id];
+    const isLeaf = !childrenNodes || childrenNodes.length === 0;
 
     // tap 自己
-    tap(currentTreeNode, { done, trace });
+    tap(currentTreeNode, { done, trace, isLeaf });
 
     // 如果用户调用了 done, 则可以停止 walk
     if (shouldStop) return;
 
     // 递归 tap 儿子
-    childrenMap[_id] && childrenMap[_id].forEach(child => _walk(child.id, trace));
+    !isLeaf && childrenNodes.forEach(child => _walk(child.id, trace));
   };
 
   _walk(startId);
@@ -138,9 +141,9 @@ export const isLeaf = <T extends ITreeNode>(list: T[], id: string): boolean => {
 export const getAllTraceList = <T extends ITreeNode>(list: T[], startId: string): T[][] => {
   const re: T[][] = [];
 
-  walk(list, startId, (t, { trace }) => {
+  walk(list, startId, (_, { trace, isLeaf: _isLeaf }) => {
     // 遇到叶子节点，就可以记录下这条 trace 了
-    if (isLeaf(list, t.id)) re.push(trace);
+    if (_isLeaf) re.push(trace);
   });
 
   return re;

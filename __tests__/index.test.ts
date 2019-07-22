@@ -69,8 +69,9 @@ describe('walk', () => {
     });
   });
 
-  it('trace', () => {
+  it('trace && isLeaf', () => {
     const traceMap = {};
+    const isLeafMap = {};
 
     const t0 = { id: '0' };
     const t0_0 = { id: '0_0', parentId: t0.id };
@@ -79,8 +80,9 @@ describe('walk', () => {
 
     const list = [t0, t0_0, t0_1, t0_0_0];
 
-    walk(list, t0.id, (t, { trace }) => {
+    walk(list, t0.id, (t, { trace, isLeaf: _isLeaf }) => {
       traceMap[t.id] = trace;
+      isLeafMap[t.id] = _isLeaf;
     });
 
     expect(traceMap).toStrictEqual({
@@ -88,6 +90,13 @@ describe('walk', () => {
       [t0_0.id]: [t0, t0_0],
       [t0_1.id]: [t0, t0_1],
       [t0_0_0.id]: [t0, t0_0, t0_0_0],
+    });
+
+    expect(isLeafMap).toStrictEqual({
+      [t0.id]: false,
+      [t0_0.id]: false,
+      [t0_1.id]: true,
+      [t0_0_0.id]: true,
     });
   });
 });
