@@ -9,6 +9,7 @@
   "module": "dist/es/index.js",
   "scripts": {
     "test": "jest",
+    "benchmark": "ts-node ./benchmark/index.ts",
     "ci": "npm run test",
     "clean": "rm -rf dist/*",
     "build:es": "tsc -p tsconfig.build.es.json --outDir dist/es",
@@ -27,12 +28,15 @@
   },
   "homepage": "https://github.com/concefly/flat-tree-helper#readme",
   "devDependencies": {
+    "@types/benchmark": "^1.0.31",
     "@types/jest": "^24.0.14",
     "@types/lodash.groupby": "^4.6.6",
     "@types/lodash.keyby": "^4.6.6",
     "@types/lodash.unionby": "^4.8.6",
+    "benchmark": "^2.1.4",
     "jest": "^24.8.0",
     "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
     "typescript": "^3.5.2"
   },
   "dependencies": {
