@@ -21,16 +21,20 @@ export const findAllTrace = <G extends IDigraphNode>(
 
     if (_trace.find(t => t.id === current.id)) return;
 
+    _trace.push(current);
     tap && tap(current);
 
     if (current.id === stopId) {
-      traceSet.add([..._trace, current]);
+      traceSet.add([..._trace]);
+      _trace.pop();
       return;
     }
 
     current.nextIds.forEach(nextId => {
-      _walk(nextId, [..._trace, current]);
+      _walk(nextId, _trace);
     });
+
+    _trace.pop();
   };
 
   _walk(startId, []);
