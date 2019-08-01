@@ -50,15 +50,29 @@ describe('findAllTrace', () => {
     expect(simplify(result)).toEqual(['0,1,2,3,4']);
   });
 
-  it.skip('爆栈', () => {
+  it('1e6 节点不爆栈', () => {
     const g: IDigraphNode[] = [];
-    for (let i = 0; i <= 9999; i++) {
-      g.push({
-        id: i + '',
-        nextIds: [i + 1 + ''],
-      });
-    }
+    const MAX_CNT = 1e6;
 
-    findAllTrace(g, '0', '9999');
+    const l2Ids = Array(MAX_CNT)
+      .fill(0)
+      .map((_, i) => i + '');
+
+    // L1 节点
+    g.push({
+      id: 'start',
+      nextIds: l2Ids,
+    });
+
+    // L2 节点
+    l2Ids.forEach(id => {
+      g.push({ id, nextIds: ['stop'] });
+    });
+
+    // L3 节点
+    g.push({ id: 'stop', nextIds: [] });
+
+    const result = findAllTrace(g, 'start', 'stop');
+    expect(result).toHaveLength(MAX_CNT);
   });
 });
