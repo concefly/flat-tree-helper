@@ -4,7 +4,12 @@ export interface IDigraphNode {
 }
 
 /** 两点之间所有路径 */
-export const findAllTrace = <G extends IDigraphNode>(graph: G[], startId: string, stopId: string) => {
+export const findAllTrace = <G extends IDigraphNode>(
+  graph: G[],
+  startId: string,
+  stopId: string,
+  tap?: (g: G) => void
+) => {
   const idMap = new Map<string, G>();
   graph.forEach(g => idMap.set(g.id, g));
 
@@ -15,6 +20,8 @@ export const findAllTrace = <G extends IDigraphNode>(graph: G[], startId: string
     if (!current) return;
 
     if (_trace.find(t => t.id === current.id)) return;
+
+    tap && tap(current);
 
     if (current.id === stopId) {
       traceSet.add([..._trace, current]);
