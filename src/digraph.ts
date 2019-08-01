@@ -3,12 +3,12 @@ export interface IDigraphNode {
   nextIds: string[];
 }
 
-/** 两点之间所有路径 */
 export const findAllTrace = <G extends IDigraphNode>(
   graph: G[],
   startId: string,
   stopId: string,
-  tap?: (g: G) => void
+  tap: (g: G, opt: { trace: G[] }) => void = () => {},
+  traceFilter: (g: G, opt: { trace: G[] }) => boolean = () => true
 ) => {
   const idMap = new Map<string, G>();
   graph.forEach(g => idMap.set(g.id, g));
@@ -22,10 +22,12 @@ export const findAllTrace = <G extends IDigraphNode>(
     if (_trace.find(t => t.id === current.id)) return;
 
     _trace.push(current);
-    tap && tap(current);
+    tap(current, { trace: _trace });
 
     if (current.id === stopId) {
-      traceSet.add([..._trace]);
+      const shouldAdd = traceFilter(current, { trace: _trace });
+      shouldAdd && traceSet.add([..._trace]);
+
       _trace.pop();
       return;
     }
