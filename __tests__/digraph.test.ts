@@ -55,29 +55,4 @@ describe('getAllTraceGenerator', () => {
 
     expect(simplify([...result])).toEqual(['0,1,2,3,4']);
   });
-
-  it('1e6 节点不爆栈', () => {
-    const g: IDigraphNode[] = [];
-    const MAX_CNT = 1e6;
-
-    const l2Ids = Array(MAX_CNT)
-      .fill(0)
-      .map((_, i) => i + '');
-
-    // L1 节点
-    g.push({
-      id: 'start',
-      nextIds: l2Ids,
-    });
-
-    // L2 节点
-    l2Ids.forEach(id => {
-      g.push({ id, nextIds: ['stop'] });
-    });
-
-    // L3 节点
-    g.push({ id: 'stop', nextIds: [] });
-
-    getAllTraceGenerator(g, 'start', 'stop');
-  });
 });
