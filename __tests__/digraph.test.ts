@@ -1,8 +1,8 @@
-import { findAllTrace, IDigraphNode } from '../src/digraph';
+import { IDigraphNode, getAllTraceGenerator } from '../src/digraph';
 
-describe('findAllTrace', () => {
-  const simplify = (result: IDigraphNode[][]) => result.map(r => r.map(_r => _r.id).join(','));
+const simplify = (result: IDigraphNode[][]) => result.map(r => r.map(_r => _r.id).join(','));
 
+describe('getAllTraceGenerator', () => {
   it('normal', () => {
     const g: IDigraphNode[] = [
       {
@@ -30,12 +30,18 @@ describe('findAllTrace', () => {
         nextIds: [],
       },
     ];
-    const result = findAllTrace(g, '0', '5');
-    expect(simplify(result)).toEqual(['0,1,2,4,5', '0,1,3,4,5', '0,1,3,5', '0,1,4,5', '0,2,4,5']);
+    const result = getAllTraceGenerator(g, '0', '5');
+    expect(simplify([...result])).toEqual([
+      '0,1,2,4,5',
+      '0,1,3,4,5',
+      '0,1,3,5',
+      '0,1,4,5',
+      '0,2,4,5',
+    ]);
   });
 
   it('有环', () => {
-    const result = findAllTrace(
+    const result = getAllTraceGenerator(
       [
         { id: '0', nextIds: ['1'] },
         { id: '1', nextIds: ['2'] },
@@ -47,7 +53,7 @@ describe('findAllTrace', () => {
       '4'
     );
 
-    expect(simplify(result)).toEqual(['0,1,2,3,4']);
+    expect(simplify([...result])).toEqual(['0,1,2,3,4']);
   });
 
   it('1e6 节点不爆栈', () => {
@@ -72,7 +78,6 @@ describe('findAllTrace', () => {
     // L3 节点
     g.push({ id: 'stop', nextIds: [] });
 
-    const result = findAllTrace(g, 'start', 'stop');
-    expect(result).toHaveLength(MAX_CNT);
+    getAllTraceGenerator(g, 'start', 'stop');
   });
 });
