@@ -3,41 +3,32 @@ export interface IDigraphNode {
   nextIds: string[];
 }
 
-/** 两点之间所有路径 */
-export const findAllTrace = <G extends IDigraphNode>(
+export const getAllTraceGenerator = <G extends IDigraphNode>(
   graph: G[],
   startId: string,
-  stopId: string,
-  tap?: (g: G) => void
+  stopId: string
 ) => {
   const idMap = new Map<string, G>();
   graph.forEach(g => idMap.set(g.id, g));
 
-  const traceSet = new Set<G[]>();
+  const _getRestTraceList = function*(_id: string, _trace: G[] = []): IterableIterator<G[]> {
+    if (_trace.some(t => t.id === _id)) return;
 
-  const _walk = (_id: string, _trace: G[]) => {
     const current = idMap.get(_id);
     if (!current) return;
 
-    if (_trace.find(t => t.id === current.id)) return;
-
-    _trace.push(current);
-    tap && tap(current);
-
     if (current.id === stopId) {
-      traceSet.add([..._trace]);
-      _trace.pop();
-      return;
+      yield [current];
     }
 
-    current.nextIds.forEach(nextId => {
-      _walk(nextId, _trace);
-    });
+    for (const nextId of current.nextIds) {
+      const newTrace = [..._trace, current];
 
-    _trace.pop();
+      for (const restTrace of _getRestTraceList(nextId, newTrace)) {
+        yield [current, ...restTrace];
+      }
+    }
   };
 
-  _walk(startId, []);
-
-  return [...traceSet.values()];
+  return _getRestTraceList(startId);
 };
