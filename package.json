@@ -1,6 +1,6 @@
 {
   "name": "flat-tree-helper",
-  "version": "0.2.4",
+  "version": "2.0.0",
   "description": "",
   "files": [
     "dist"
@@ -14,7 +14,7 @@
     "build:es": "tsc -p tsconfig.build.es.json --outDir dist/es",
     "build:lib": "tsc -p tsconfig.build.json --outDir dist/lib",
     "build": "npm run clean && npm run build:lib && npm run build:es",
-    "prepublish": "npm run ci && npm run build"
+    "prepublishOnly": "npm run ci && npm run build"
   },
   "repository": {
     "type": "git",
@@ -36,6 +36,7 @@
     "typescript": "^3.5.2"
   },
   "dependencies": {
+    "fast-memoize": "^2.5.2",
     "lodash.groupby": "^4.6.0",
     "lodash.keyby": "^4.6.0",
     "lodash.unionby": "^4.8.0"

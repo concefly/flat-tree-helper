@@ -1,155 +1,167 @@
 import keyBy from 'lodash.keyby';
 import groupBy from 'lodash.groupby';
 import unionBy from 'lodash.unionby';
+import memoize from 'fast-memoize';
 
 export interface ITreeNode {
   id: string;
   parentId?: string;
 }
 
-/** 深度优先遍历所有后代 */
-export const walk = <T extends ITreeNode>(
-  list: T[],
-  startId: string,
-  tap: (
-    t: T,
-    opt: {
-      /** walk 踪迹 */
-      trace: T[];
-      isLeaf: boolean;
-      done: () => void;
-    }
-  ) => void
-) => {
-  // list 转 map，优化查找速度
-  const idMap = keyBy(list, 'id');
-  const childrenMap = groupBy(list, 'parentId');
+export class FlatTreeHelper<T extends ITreeNode> {
+  /** 把 trace 合并成 tree */
+  static reduceTraceList<T extends ITreeNode>(traceList: T[][]): T[] {
+    return (unionBy.apply as any)(null, [...traceList, (t: T) => t.id]);
+  }
 
-  if (!idMap[startId]) return;
+  constructor(private readonly list: T[]) {}
 
-  const _walk = (_id: string, _lastTrace: T[] = []) => {
-    const currentTreeNode = idMap[_id];
-    if (!currentTreeNode) return;
+  /** 懒获取 idMap */
+  public getIdMap = memoize(() => keyBy(this.list, 'id'));
 
-    let shouldStop = false;
-    const done = () => {
-      shouldStop = true;
+  /** 懒获取 childrenMap */
+  public getChildrenMap = memoize(() => groupBy(this.list, 'parentId'));
+
+  /** 深度优先遍历所有后代 */
+  public walk(
+    startId: string,
+    tap: (
+      t: T,
+      opt: {
+        /** walk 踪迹 */
+        trace: T[];
+        isLeaf: boolean;
+        done: () => void;
+      }
+    ) => void
+  ) {
+    // list 转 map，优化查找速度
+    const idMap = this.getIdMap();
+    const childrenMap = this.getChildrenMap();
+
+    if (!idMap[startId]) return;
+
+    const _walk = (_id: string, _lastTrace: T[] = []) => {
+      const currentTreeNode = idMap[_id];
+      if (!currentTreeNode) return;
+
+      let shouldStop = false;
+      const done = () => {
+        shouldStop = true;
+      };
+
+      const trace = [..._lastTrace, currentTreeNode];
+      const childrenNodes = childrenMap[_id];
+      const isLeaf = !childrenNodes || childrenNodes.length === 0;
+
+      // tap 自己
+      tap(currentTreeNode, { done, trace, isLeaf });
+
+      // 如果用户调用了 done, 则可以停止 walk
+      if (shouldStop) return;
+
+      // 递归 tap 儿子
+      !isLeaf && childrenNodes.forEach(child => _walk(child.id, trace));
     };
 
-    const trace = [..._lastTrace, currentTreeNode];
-    const childrenNodes = childrenMap[_id];
-    const isLeaf = !childrenNodes || childrenNodes.length === 0;
+    _walk(startId);
+  }
 
-    // tap 自己
-    tap(currentTreeNode, { done, trace, isLeaf });
+  /** 递归删除 */
+  public remove(startId: string) {
+    const removeSet = new Set<string>();
 
-    // 如果用户调用了 done, 则可以停止 walk
-    if (shouldStop) return;
+    // 给后代打删除标记
+    this.walk(startId, t => removeSet.add(t.id));
 
-    // 递归 tap 儿子
-    !isLeaf && childrenNodes.forEach(child => _walk(child.id, trace));
-  };
+    // 只保留没有删除标记的节点
+    return this.list.filter(t => !removeSet.has(t.id));
+  }
 
-  _walk(startId);
+  /** 移动 */
+  public move(
+    id: string,
+    parentId?: string,
+    opt: {
+      before?: string;
+      after?: string;
+    } = {}
+  ) {
+    if (opt.before && opt.after) throw new Error('before 和 after 不可同时设置');
 
-  return list;
-};
+    const newList = [...this.list];
 
-/** 递归删除 */
-export const remove = <T extends ITreeNode>(list: T[], startId: string) => {
-  const removeSym = Symbol('remove flag');
+    const targetIndex = newList.findIndex(t => t.id === id);
+    if (targetIndex < 0) throw new Error('id 不存在');
 
-  // 给后代打删除标记
-  walk(list, startId, t => (t[removeSym] = true));
+    const newTreeNode = {
+      ...newList[targetIndex],
+      parentId,
+    };
 
-  // 只保留没有删除标记的节点
-  return list.filter(t => !t[removeSym]);
-};
+    newList[targetIndex] = newTreeNode;
 
-/** 移动 */
-export const move = <T extends ITreeNode>(
-  list: T[],
-  id: string,
-  parentId?: string,
-  opt: {
-    before?: string;
-    after?: string;
-  } = {}
-) => {
-  if (opt.before && opt.after) throw new Error('before 和 after 不可同时设置');
+    if (opt.before) {
+      newList.splice(targetIndex, 1);
 
-  const newList = [...list];
+      const beforeIndex = newList.findIndex(t => t.id === opt.before);
+      newList.splice(beforeIndex, 0, newTreeNode);
 
-  const targetIndex = newList.findIndex(t => t.id === id);
-  if (targetIndex < 0) throw new Error('id 不存在');
+      return newList;
+    }
 
-  const newTreeNode = {
-    ...newList[targetIndex],
-    parentId,
-  };
+    if (opt.after) {
+      newList.splice(targetIndex, 1);
 
-  newList[targetIndex] = newTreeNode;
+      const afterIndex = newList.findIndex(t => t.id === opt.after);
+      newList.splice(afterIndex + 1, 0, newTreeNode);
 
-  if (opt.before) {
-    newList.splice(targetIndex, 1);
-
-    const beforeIndex = newList.findIndex(t => t.id === opt.before);
-    newList.splice(beforeIndex, 0, newTreeNode);
+      return newList;
+    }
 
     return newList;
   }
 
-  if (opt.after) {
-    newList.splice(targetIndex, 1);
+  /** 查找所有 parent */
+  public findAllParent(startId: string): T[] {
+    const idMap = this.getIdMap();
+    const parentList: T[] = [];
 
-    const afterIndex = newList.findIndex(t => t.id === opt.after);
-    newList.splice(afterIndex + 1, 0, newTreeNode);
+    let current: T | null = idMap[startId];
 
-    return newList;
+    while (current) {
+      parentList.unshift(current);
+      current = current.parentId ? idMap[current.parentId] : null;
+    }
+
+    // 移除自己
+    parentList.pop();
+
+    return parentList;
   }
 
-  return newList;
-};
-
-/** 查找所有 parent */
-export const findAllParent = <T extends ITreeNode>(list: T[], startId: string): T[] => {
-  let current = list.find(t => t.id === startId);
-  const parentList: T[] = [];
-
-  while (current) {
-    parentList.unshift(current);
-    current = list.find(t => t.id === current.parentId);
+  /** 查找所有根节点 */
+  public findAllRoot(): T[] {
+    return this.list.filter(t => !t.parentId);
   }
 
-  // 移除自己
-  parentList.pop();
+  /** 判断是否叶子节点 */
+  public isLeaf(id: string): boolean {
+    const childrenMap = this.getChildrenMap();
 
-  return parentList;
-};
+    if (!childrenMap[id]) return true;
+    return childrenMap[id].length === 0;
+  }
 
-/** 查找所有根节点 */
-export const findAllRoot = <T extends ITreeNode>(list: T[]): T[] => {
-  return list.filter(t => !t.parentId);
-};
+  /** 返回所有踪迹 */
+  public getAllTraceList(startId: string): T[][] {
+    const re: T[][] = [];
 
-/** 判断是否叶子节点 */
-export const isLeaf = <T extends ITreeNode>(list: T[], id: string): boolean => {
-  return list.every(t => t.parentId !== id);
-};
+    this.walk(startId, (_, { trace, isLeaf: _isLeaf }) => {
+      // 遇到叶子节点，就可以记录下这条 trace 了
+      if (_isLeaf) re.push(trace);
+    });
 
-/** 返回所有踪迹 */
-export const getAllTraceList = <T extends ITreeNode>(list: T[], startId: string): T[][] => {
-  const re: T[][] = [];
-
-  walk(list, startId, (_, { trace, isLeaf: _isLeaf }) => {
-    // 遇到叶子节点，就可以记录下这条 trace 了
-    if (_isLeaf) re.push(trace);
-  });
-
-  return re;
-};
-
-/** 把 trace 合并成 tree */
-export const reduceTraceList = <T extends ITreeNode>(traceList: T[][]): T[] => {
-  return unionBy.apply(null, [...traceList, (t: T) => t.id]);
-};
+    return re;
+  }
+}
