@@ -1,4 +1,4 @@
-<h1 align="center">Welcome to flat-tree-helper 👋</h1>
+<h1 align="center">扁平树结构数据 helper 库</h1>
 <p>
   <img src="https://img.shields.io/badge/version-0.0.1-blue.svg?cacheSeconds=2592000" />
   <a href="https://github.com/concefly/flat-tree-helper#readme">
@@ -14,35 +14,15 @@
 
 [![Build Status](https://travis-ci.org/concefly/flat-tree-helper.svg?branch=master)](https://travis-ci.org/concefly/flat-tree-helper)
 
-> 扁平 tree helper
-
-### 🏠 [Homepage](https://github.com/concefly/flat-tree-helper#readme)
-
 ## Install
 
 ```sh
 npm install
 ```
 
-## Run tests
+## API
 
-```sh
-npm run test
-```
-
-## Author
-
-👤 **concefly**
-
-* Github: [@concefly](https://github.com/concefly)
-
-## 🤝 Contributing
-
-Contributions, issues and feature requests are welcome !<br />Feel free to check [issues page](https://github.com/concefly/flat-tree-helper/issues).
-
-## Show your support
-
-Give a ⭐️ if this project helped you !
+### FlatTreeHelper
 
 ## 📝 License
 
