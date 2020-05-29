@@ -8,19 +8,23 @@ export interface ITreeNode {
   parentId?: string;
 }
 
+export interface Dictionary<V> {
+  [index: string]: V;
+}
+
 export class FlatTreeHelper<T extends ITreeNode> {
   /** 把 trace 合并成 tree */
   static reduceTraceList<T extends ITreeNode>(traceList: T[][]): T[] {
     return (unionBy.apply as any)(null, [...traceList, (t: T) => t.id]);
   }
 
-  constructor(private readonly list: T[]) {}
+  constructor(readonly list: T[]) {}
 
   /** 懒获取 idMap */
-  public getIdMap = memoize(() => keyBy(this.list, 'id'));
+  public getIdMap = memoize(() => keyBy(this.list, 'id') as Dictionary<T>);
 
   /** 懒获取 childrenMap */
-  public getChildrenMap = memoize(() => groupBy(this.list, 'parentId'));
+  public getChildrenMap = memoize(() => groupBy(this.list, 'parentId') as Dictionary<T[]>);
 
   /** 深度优先遍历所有后代 */
   public walk(
