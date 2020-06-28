@@ -22,9 +22,15 @@ export class FlatTreeHelper<T extends ITreeNode> {
 
   /** 懒获取 idMap */
   public getIdMap = memoize(() => keyBy(this.list, 'id') as Dictionary<T>);
+  public get idMap() {
+    return this.getIdMap();
+  }
 
   /** 懒获取 childrenMap */
   public getChildrenMap = memoize(() => groupBy(this.list, 'parentId') as Dictionary<T[]>);
+  public get childrenMap() {
+    return this.getChildrenMap();
+  }
 
   /** 深度优先遍历所有后代 */
   public walk(
@@ -167,5 +173,13 @@ export class FlatTreeHelper<T extends ITreeNode> {
     });
 
     return re;
+  }
+
+  public getById(id: string): T {
+    return this.getIdMap()[id];
+  }
+
+  public getFlatChildren(id: string): T[] {
+    return this.getChildrenMap()[id] || [];
   }
 }
