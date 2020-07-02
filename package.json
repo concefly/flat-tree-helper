@@ -1,20 +1,23 @@
 {
   "name": "flat-tree-helper",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "",
   "files": [
     "dist"
   ],
   "main": "dist/lib/index.js",
   "module": "dist/es/index.js",
+  "browser": "dist/index.umd.js",
   "scripts": {
     "test": "jest",
     "ci": "npm run test",
     "clean": "rm -rf dist/*",
     "build:es": "tsc -p tsconfig.build.es.json --outDir dist/es",
     "build:lib": "tsc -p tsconfig.build.json --outDir dist/lib",
-    "build": "npm run clean && npm run build:lib && npm run build:es",
-    "prepublishOnly": "npm run ci && npm run build"
+    "build:rollup": "rollup -c",
+    "build": "npm run clean && npm run build:lib && npm run build:es && npm run build:rollup",
+    "prepublishOnly": "npm run ci && npm run build",
+    "postpublish": "PACKAGE_VERSION=$(cat package.json | grep \\\"version\\\" | head -1 | awk -F: '{ print $2 }' | sed 's/[\",]//g' | tr -d '[[:space:]]') && git tag v$PACKAGE_VERSION && git push origin --all && git push origin --tags"
   },
   "repository": {
     "type": "git",
@@ -27,11 +30,15 @@
   },
   "homepage": "https://github.com/concefly/flat-tree-helper#readme",
   "devDependencies": {
+    "@rollup/plugin-typescript": "^5.0.1",
     "@types/jest": "^24.0.14",
     "@types/lodash.groupby": "^4.6.6",
     "@types/lodash.keyby": "^4.6.6",
     "@types/lodash.unionby": "^4.8.6",
     "jest": "^24.8.0",
+    "rollup": "^2.18.2",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "ts-jest": "^24.0.2",
     "typescript": "^3.5.2"
   },
