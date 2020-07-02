@@ -9,5 +9,5 @@ export default {
     format: 'umd',
     name: 'FlatTreeHelper',
   },
-  plugins: [commonjs(), resolve(), typescript({ tsconfig: './tsconfig.json' })],
+  plugins: [commonjs(), resolve(), typescript({ tsconfig: './tsconfig.build.rollup.json' })],
 };
