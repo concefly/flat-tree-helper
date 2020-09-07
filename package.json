@@ -1,6 +1,6 @@
 {
   "name": "flat-tree-helper",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "",
   "files": [
     "dist"
@@ -33,7 +33,9 @@
     "@rollup/plugin-typescript": "^5.0.1",
     "@types/jest": "^24.0.14",
     "@types/lodash.groupby": "^4.6.6",
+    "@types/lodash.inrange": "^3.3.6",
     "@types/lodash.keyby": "^4.6.6",
+    "@types/lodash.minby": "^4.6.6",
     "@types/lodash.unionby": "^4.8.6",
     "jest": "^24.8.0",
     "rollup": "^2.18.2",
@@ -45,7 +47,9 @@
   "dependencies": {
     "fast-memoize": "^2.5.2",
     "lodash.groupby": "^4.6.0",
+    "lodash.inrange": "^3.3.6",
     "lodash.keyby": "^4.6.0",
+    "lodash.minby": "^4.6.0",
     "lodash.unionby": "^4.8.0"
   },
   "sideEffects": false
