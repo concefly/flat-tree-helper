@@ -5,8 +5,8 @@ exports[`geometry Rect intersection - 空 1`] = `null`;
 exports[`geometry Rect intersection 1`] = `
 Rect {
   "x1": 5,
-  "x2": 5,
-  "y1": 10,
+  "x2": 10,
+  "y1": 5,
   "y2": 10,
 }
 `;
