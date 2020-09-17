@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`geometry Rect intersection - 空 1`] = `null`;
+
+exports[`geometry Rect intersection 1`] = `
+Rect {
+  "x1": 5,
+  "x2": 5,
+  "y1": 10,
+  "y2": 10,
+}
+`;
+
+exports[`geometry Rect union 1`] = `
+Rect {
+  "x1": 0,
+  "x2": 15,
+  "y1": 0,
+  "y2": 15,
+}
+`;

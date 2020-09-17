@@ -1,4 +1,4 @@
-import { Line, Point, LineSet } from '../src/Geometry';
+import { Line, Point, LineSet, Rect } from '../src/Geometry';
 
 describe('geometry', () => {
   describe('Line', () => {
@@ -30,6 +30,32 @@ describe('geometry', () => {
       const nl = la.getNearestLine(p);
 
       expect(nl).toEqual(l1);
+    });
+  });
+
+  describe('Rect', () => {
+    it('union', () => {
+      const r1 = new Rect(0, 0, 10, 10);
+      const r2 = new Rect(5, 5, 15, 15);
+
+      const ru = r1.union(r2);
+      expect(ru).toMatchSnapshot();
+    });
+
+    it('intersection', () => {
+      const r1 = new Rect(0, 0, 10, 10);
+      const r2 = new Rect(5, 5, 15, 15);
+
+      const ri = r1.intersection(r2);
+      expect(ri).toMatchSnapshot();
+    });
+
+    it('intersection - 空', () => {
+      const r1 = new Rect(0, 0, 1, 1);
+      const r2 = new Rect(1, 1, 2, 2);
+
+      const ri = r1.intersection(r2);
+      expect(ri).toMatchSnapshot();
     });
   });
 });

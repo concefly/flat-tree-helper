@@ -85,6 +85,34 @@ export class Rect {
 
     return false;
   }
+
+  size() {
+    return (this.x2 - this.x1) * (this.y2 - this.y1);
+  }
+
+  /** 求矩形并集 */
+  union(t: Rect) {
+    const x1 = Math.min(this.x1, t.x1);
+    const x2 = Math.max(this.x2, t.x2);
+    const y1 = Math.min(this.y1, t.y1);
+    const y2 = Math.max(this.y2, t.y2);
+
+    return new Rect(x1, y1, x2, y2);
+  }
+
+  /** 求矩形交集 */
+  intersection(t: Rect) {
+    const ur = this.union(t);
+
+    const x1 = this.x1 === ur.x1 ? t.x1 : this.x1;
+    const x2 = this.x2 === ur.x2 ? t.x2 : this.x2;
+    const y1 = this.y1 === ur.y1 ? t.y1 : this.y1;
+    const y2 = this.y2 === ur.y2 ? t.y2 : this.y2;
+
+    if (x1 === x2 || y1 === y2) return null;
+
+    return new Rect(x1, x2, y1, y2);
+  }
 }
 
 /** 直线集合 */
