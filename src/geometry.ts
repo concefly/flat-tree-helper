@@ -111,7 +111,7 @@ export class Rect {
 
     if (x1 === x2 || y1 === y2) return null;
 
-    return new Rect(x1, x2, y1, y2);
+    return new Rect(x1, y1, x2, y2);
   }
 }
 
