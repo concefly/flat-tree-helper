@@ -112,15 +112,30 @@ export class Digraph<T extends IDigraphNode> {
   /** 返回所有踪迹 */
   public getAllTraceList(startId: string, stopId: string): T[][] {
     const re: T[][] = [];
+    const ns = new Map<string, { enterTraceCnt: number }>();
+    const blockIds = new Set<string>();
 
     this.walk(
       startId,
       // 前序
-      (cur, { stopWalkIn: done, trace }) => {
-        // 遇到停止点 -> 记录并停止
+      (cur, { stopWalkIn, trace }) => {
+        // block 点 -> 停止当前链路搜索
+        if (blockIds.has(cur.id)) return stopWalkIn();
+
+        // 记录节点进入时的 trace 数量
+        ns.set(cur.id, { enterTraceCnt: re.length });
+
+        // 遇到停止点 -> 记录并阻止 walk in
         if (cur.id === stopId) {
           re.push(trace);
-          return done();
+          return stopWalkIn();
+        }
+      },
+      // 后序
+      cur => {
+        if (ns.get(cur.id)?.enterTraceCnt === re.length) {
+          // 如果深度优先遍历退出的时候还没有找到 trace, 则 block 此节点
+          blockIds.add(cur.id);
         }
       }
     );

@@ -28,6 +28,11 @@ describe('Digraph', () => {
       expect(simplify(result)).toEqual(['0,1,2,4,5', '0,1,3,4,5', '0,1,3,5', '0,1,4,5', '0,2,4,5']);
     });
 
+    it('分叉', () => {
+      const result = new Digraph(normalGraph).getAllTraceList('0', '7');
+      expect(simplify(result)).toEqual(['0,1,3,7']);
+    });
+
     it('有环', () => {
       const result = new Digraph(circleGraph).getAllTraceList('0', '4');
       expect(simplify(result)).toEqual(['0,1,2,3,4']);
