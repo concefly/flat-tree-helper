@@ -72,6 +72,20 @@ export class LineSegment extends Line {
 
 /** 矩形 */
 export class Rect {
+  static union(list: Rect[]): Rect {
+    const [first, ...rest] = list;
+    if (rest.length === 0) return first;
+
+    return list.reduce((a, b) => a.union(b), first);
+  }
+
+  static intersection(list: Rect[]): Rect | null {
+    const [first, ...rest] = list;
+    if (rest.length === 0) return first;
+
+    return list.reduce<Rect | null>((a, b) => (a ? a.intersection(b) : null), first);
+  }
+
   constructor(readonly x1: number, readonly y1: number, readonly x2: number, readonly y2: number) {
     if (x1 === x2 && x1 === y1 && y1 === y2) {
       throw new Error(`坐标错误 (${x1}, ${y1}), (${x2}, ${y2})`);
@@ -101,7 +115,7 @@ export class Rect {
   }
 
   /** 求矩形交集 */
-  intersection(t: Rect) {
+  intersection(t: Rect): Rect | null {
     const ur = this.union(t);
 
     const x1 = this.x1 === ur.x1 ? t.x1 : this.x1;

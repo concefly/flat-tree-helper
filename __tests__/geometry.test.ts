@@ -40,6 +40,7 @@ describe('geometry', () => {
 
       const ru = r1.union(r2);
       expect(ru).toMatchSnapshot();
+      expect(ru).toEqual(Rect.union([r1, r2]));
     });
 
     it('intersection', () => {
@@ -48,6 +49,7 @@ describe('geometry', () => {
 
       const ri = r1.intersection(r2);
       expect(ri).toMatchSnapshot();
+      expect(ri).toEqual(Rect.intersection([r1, r2]));
     });
 
     it('intersection - 空', () => {
