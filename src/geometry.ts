@@ -92,6 +92,14 @@ export class Rect {
     }
   }
 
+  get height() {
+    return this.y2 - this.y1;
+  }
+
+  get width() {
+    return this.x2 - this.x1;
+  }
+
   isInside(t: Point) {
     if (t instanceof Point) {
       return inRange(t.x, this.x1, this.x2) && inRange(t.y, this.y1, this.y2);
@@ -101,7 +109,7 @@ export class Rect {
   }
 
   size() {
-    return (this.x2 - this.x1) * (this.y2 - this.y1);
+    return this.height * this.width;
   }
 
   /** 求矩形并集 */
