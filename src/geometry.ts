@@ -92,6 +92,14 @@ export class Rect {
     }
   }
 
+  get ym() {
+    return this.y1 + (this.y2 - this.y1) / 2;
+  }
+
+  get xm() {
+    return this.x1 + (this.x2 - this.x1) / 2;
+  }
+
   get height() {
     return this.y2 - this.y1;
   }
@@ -134,6 +142,30 @@ export class Rect {
     if (x1 === x2 || y1 === y2) return null;
 
     return new Rect(x1, y1, x2, y2);
+  }
+
+  /** 获取矩形顶点 */
+  getPoints() {
+    return {
+      // 左边 3 点
+      x1y1: new Point(this.x1, this.y1),
+      x1ym: new Point(this.x1, this.ym),
+      x1y2: new Point(this.x1, this.y2),
+
+      // 右边 3 点
+      x2y1: new Point(this.x2, this.y1),
+      x2ym: new Point(this.x2, this.ym),
+      x2y2: new Point(this.x2, this.y2),
+
+      // 上中点
+      xmy2: new Point(this.xm, this.y2),
+
+      // 下中点
+      xmy1: new Point(this.xm, this.y1),
+
+      // 中点
+      xmym: new Point(this.xm, this.ym),
+    };
   }
 }
 
